@@ -1,0 +1,379 @@
+/* Fixed 980×1000 design canvas; positions mirror the reference DS photo. */
+.ds {
+  position: relative;
+  width: 980px;
+  height: 1000px;
+  user-select: none;
+  -webkit-user-select: none;
+  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.45));
+}
+
+.ds > * {
+  position: absolute;
+}
+
+/* Stylus pointer anywhere over the DS. Hotspot is the tip (top-left). */
+.ds,
+.ds * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg transform='translate(2 2) rotate(45)'%3E%3Cpath d='M0 0 L7 -2.6 H34 a2.6 2.6 0 0 1 0 5.2 H7 Z' fill='%23e8ecee' stroke='%23262c30' stroke-width='1.4' stroke-linejoin='round'/%3E%3Cpath d='M0 0 L3.2 -1.2 V1.2 Z' fill='%23262c30'/%3E%3Crect x='26' y='-2.6' width='3' height='5.2' fill='%238f9aa0'/%3E%3C/g%3E%3C/svg%3E") 2 2, pointer;
+}
+
+/* ---------- Colour options (set via data-color on .ds) ---------- */
+.ds[data-color='ice'] {
+  --ds-body: #59c2db; --ds-body-hi: #7fd3e8; --ds-body-lo: #3fa8c2; --ds-edge: #2f93ad;
+  --ds-ink: #1d6f86; --ds-shade: #1a5f72; --ds-dark: #0f2f38; --ds-label: #f2fbfe;
+}
+
+.ds[data-color='crimson'] {
+  --ds-body: #c8323a; --ds-body-hi: #e05a60; --ds-body-lo: #a5262d; --ds-edge: #8e1f26;
+  --ds-ink: #6a141a; --ds-shade: #4a0d12; --ds-dark: #2a0609; --ds-label: #fff1f1;
+}
+
+.ds[data-color='pink'] {
+  --ds-body: #ec8db4; --ds-body-hi: #f6b1cd; --ds-body-lo: #d8709b; --ds-edge: #c25e88;
+  --ds-ink: #9a3e67; --ds-shade: #7a2e50; --ds-dark: #3d1426; --ds-label: #fff5f9;
+}
+
+.ds[data-color='emerald'] {
+  --ds-body: #2f9e68; --ds-body-hi: #4fbb84; --ds-body-lo: #23824f; --ds-edge: #1c6c42;
+  --ds-ink: #135030; --ds-shade: #0c3a22; --ds-dark: #062012; --ds-label: #effff6;
+}
+
+.ds[data-color='white'] {
+  --ds-body: #e9ecee; --ds-body-hi: #ffffff; --ds-body-lo: #cfd5d9; --ds-edge: #b3bcc2;
+  --ds-ink: #87929a; --ds-shade: #69747b; --ds-dark: #3a4146; --ds-label: #67737b;
+}
+
+.ds[data-color='onyx'] {
+  --ds-body: #2c2f33; --ds-body-hi: #45494e; --ds-body-lo: #1f2225; --ds-edge: #151719;
+  --ds-ink: #0b0c0d; --ds-shade: #000; --ds-dark: #000; --ds-label: #e4e6e8;
+}
+
+/* ---------- Shell ---------- */
+.ds-lid {
+  background: linear-gradient(180deg, var(--ds-body-hi) 0%, var(--ds-body) 12%, var(--ds-body) 85%, var(--ds-body-lo) 100%);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-edge),
+    inset 0 3px 0 2px rgba(255, 255, 255, 0.35),
+    inset 0 -4px 0 2px rgba(0, 0, 0, 0.08);
+}
+
+.ds-lid--top {
+  left: 8px;
+  top: 6px;
+  width: 964px;
+  height: 462px;
+  border-radius: 26px 26px 6px 6px;
+}
+
+.ds-lid--bottom {
+  left: 8px;
+  top: 526px;
+  width: 964px;
+  height: 470px;
+  border-radius: 6px 6px 30px 30px;
+}
+
+.ds-bezel {
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--ds-body-hi), var(--ds-body));
+  box-shadow:
+    0 0 0 2px var(--ds-edge),
+    inset 0 2px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.1),
+    0 3px 0 rgba(0, 0, 0, 0.08);
+}
+
+.ds-bezel--top {
+  left: 232px;
+  top: 36px;
+  width: 520px;
+  height: 412px;
+}
+
+.ds-bezel--bottom {
+  left: 222px;
+  top: 544px;
+  width: 540px;
+  height: 420px;
+  border-radius: 16px;
+}
+
+.ds-screen-frame {
+  left: 246px;
+  width: 492px;
+  height: 372px;
+  padding: 6px;
+  background: #1a1d1f;
+  border-radius: 4px;
+  box-shadow: 0 0 0 2px var(--ds-edge), inset 0 0 0 1px #000;
+}
+
+.ds-screen-frame--top {
+  top: 50px;
+}
+
+.ds-screen-frame--bottom {
+  top: 568px;
+}
+
+.ds-screen {
+  position: relative;
+  width: 480px;
+  height: 360px;
+  overflow: hidden;
+  background: #000;
+  image-rendering: auto;
+}
+
+.ds-screen.is-shaking > * {
+  animation: screen-shake 300ms steps(6);
+}
+
+@keyframes screen-shake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-4px, 1px); }
+  40% { transform: translate(4px, -1px); }
+  60% { transform: translate(-3px, 0); }
+  80% { transform: translate(2px, 1px); }
+}
+
+.ds-corner-mark {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ds-ink) 45%, transparent), inset 1px 1px 0 1px rgba(255, 255, 255, 0.25);
+}
+
+.ds-speaker {
+  width: 34px;
+  height: 12px;
+  border-radius: 6px;
+  background: var(--ds-dark);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.ds-status {
+  color: var(--ds-label);
+  left: 42px;
+  top: 432px;
+}
+
+/* ---------- Hinge ---------- */
+.ds-hinge {
+  z-index: 2;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--ds-body-hi) 80%, #fff) 0%, var(--ds-body) 30%, var(--ds-body-lo) 70%, var(--ds-edge) 100%);
+  box-shadow: inset 0 0 0 2px var(--ds-edge), 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.ds-hinge--left {
+  left: 8px;
+  top: 458px;
+  width: 132px;
+  height: 76px;
+  border-radius: 14px;
+  display: flex;
+  gap: 10px;
+  padding-left: 40px;
+  align-items: center;
+}
+
+.ds-hinge--center {
+  left: 136px;
+  top: 466px;
+  width: 712px;
+  height: 62px;
+  border-radius: 6px;
+}
+
+.ds-hinge--right {
+  left: 844px;
+  top: 458px;
+  width: 128px;
+  height: 76px;
+  border-radius: 14px;
+}
+
+.ds-grill {
+  width: 7px;
+  height: 18px;
+  border-radius: 3px;
+  background: var(--ds-dark);
+}
+
+/* Power light: the rightmost hinge slot, under the power icon, glows blue. */
+.ds-grill--power {
+  background: linear-gradient(180deg, #e6fbff, #5ad2ff 45%, #1a8fe0);
+  box-shadow: 0 0 0 1px var(--ds-dark), 0 0 6px 2px rgba(70, 190, 255, 0.75);
+  animation: power-led 3s ease-in-out infinite;
+}
+
+@keyframes power-led {
+  0%, 100% { box-shadow: 0 0 0 1px var(--ds-dark), 0 0 6px 2px rgba(70, 190, 255, 0.75); }
+  50% { box-shadow: 0 0 0 1px var(--ds-dark), 0 0 3px 1px rgba(70, 190, 255, 0.45); }
+}
+
+.ds-camera {
+  position: absolute;
+  left: 341px;
+  top: 15px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, #3a4a50 0 3px, #0d1316 4px 9px, #26343a 10px);
+  box-shadow: 0 0 0 3px var(--ds-body-lo), 0 0 0 4px var(--ds-edge);
+}
+
+.ds-mic {
+  position: absolute;
+  left: 414px;
+  top: 25px;
+  font: 700 11px/1 var(--font-hw);
+  color: var(--ds-ink);
+}
+
+.ds-mic::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ds-dark);
+  margin-right: 6px;
+  vertical-align: 2px;
+}
+
+.ds-volume {
+  left: 0;
+  top: 568px;
+  width: 10px;
+  height: 100px;
+  border-radius: 4px 0 0 4px;
+  background: var(--ds-body-lo);
+  box-shadow: inset 0 0 0 2px var(--ds-edge);
+}
+
+/* ---------- D-pad ---------- */
+.ds-dpad {
+  left: 62px;
+  top: 638px;
+  width: 136px;
+  height: 136px;
+}
+
+/* Outline follows the union of both bars, so the cross reads as one piece */
+.ds-dpad__cross {
+  position: absolute;
+  inset: 0;
+  filter:
+    drop-shadow(3px 0 0 var(--ds-ink)) drop-shadow(-3px 0 0 var(--ds-ink))
+    drop-shadow(0 3px 0 var(--ds-ink)) drop-shadow(0 -3px 0 var(--ds-ink))
+    drop-shadow(0 4px 0 var(--ds-shade));
+}
+
+.ds-dpad__bar {
+  position: absolute;
+  border-radius: 7px;
+  background: linear-gradient(180deg, var(--ds-body-hi), var(--ds-body-lo));
+}
+
+.ds-dpad__bar--h {
+  left: 0;
+  top: 46px;
+  width: 136px;
+  height: 44px;
+}
+
+.ds-dpad__bar--v {
+  left: 46px;
+  top: 0;
+  width: 44px;
+  height: 136px;
+}
+
+.ds-dpad__hit {
+  position: absolute;
+  z-index: 2;
+  width: 46px;
+  height: 46px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: 6px;
+}
+
+.ds-dpad__hit:active {
+  background: rgba(0, 40, 55, 0.18);
+}
+
+.ds-dpad__hit--up { left: 45px; top: 0; }
+.ds-dpad__hit--down { left: 45px; top: 90px; }
+.ds-dpad__hit--left { left: 0; top: 45px; }
+.ds-dpad__hit--right { left: 90px; top: 45px; }
+
+.ds-dpad__mark {
+  position: absolute;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 1px;
+}
+
+.ds-dpad__mark--up { left: 66px; top: 10px; width: 3px; height: 16px; }
+.ds-dpad__mark--down { left: 66px; top: 110px; width: 3px; height: 16px; }
+.ds-dpad__mark--left { left: 10px; top: 66px; width: 16px; height: 3px; }
+.ds-dpad__mark--right { left: 110px; top: 66px; width: 16px; height: 3px; }
+
+/* ---------- Face, start/select, power ---------- */
+.ds-face-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  background: radial-gradient(circle at 40% 35%, color-mix(in srgb, var(--ds-body-hi) 75%, #fff), var(--ds-body) 60%, var(--ds-body-lo));
+  box-shadow: 0 0 0 3px var(--ds-ink), 0 4px 0 3px var(--ds-shade);
+  color: var(--ds-label);
+  font: 700 22px/52px var(--font-hw);
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--ds-shade) 50%, transparent);
+  transition: transform 60ms, box-shadow 60ms;
+}
+
+.ds-face-btn:active,
+.ds-small-btn:active,
+.ds-power:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 3px var(--ds-ink), 0 1px 0 3px var(--ds-shade);
+}
+
+.ds-small-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  background: radial-gradient(circle at 40% 35%, color-mix(in srgb, var(--ds-body-hi) 75%, #fff), var(--ds-body));
+  box-shadow: 0 0 0 2px var(--ds-ink), 0 3px 0 2px var(--ds-shade);
+}
+
+.ds-label {
+  font: 700 13px/1 var(--font-hw);
+  color: var(--ds-label);
+  letter-spacing: 0.2px;
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--ds-shade) 30%, transparent);
+}
+
+.ds-power {
+  left: 172px;
+  top: 906px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  color: #6c7a80;
+  background: radial-gradient(circle at 40% 35%, #f2f4f5, #b9c2c6);
+  box-shadow: 0 0 0 2px #5d7b86, 0 3px 0 2px #3c5a65;
+}
+

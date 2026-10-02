@@ -1,0 +1,289 @@
+/* ================= Title screen ================= */
+.title-screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #5ec4e2;
+  text-align: center;
+}
+
+.title-screen__rays {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 900px;
+  height: 900px;
+  margin: -450px 0 0 -450px;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.95) 0 70px, rgba(255, 255, 255, 0.4) 150px, rgba(255, 255, 255, 0) 300px),
+    repeating-conic-gradient(#56bfe0 0deg 9deg, #86d6ee 9deg 18deg);
+  animation: rays-spin 40s linear infinite;
+}
+
+@keyframes rays-spin {
+  to { transform: rotate(360deg); }
+}
+
+.title-screen__ground {
+  position: absolute;
+  left: -10px;
+  right: -10px;
+  bottom: -6px;
+  height: 64px;
+  background: repeating-linear-gradient(-24deg, #e3271d 0 14px, #ef4636 14px 17px, #d61f17 17px 32px);
+  border-top: 4px solid #fff;
+  box-shadow: 0 -4px 0 #a5140e;
+  transform: skewY(-2deg);
+}
+
+.title-screen__ball {
+  position: absolute;
+  left: 50%;
+  top: 22px;
+  width: 84px;
+  height: 84px;
+  margin-left: -42px;
+  border-radius: 50%;
+  border: 4px solid var(--dp-ink);
+  background: linear-gradient(to bottom, var(--dp-red) 0 45%, var(--dp-ink) 45% 55%, #fff 55%);
+  box-shadow: inset -8px -6px 0 rgba(0, 0, 0, 0.12), 0 6px 0 rgba(28, 60, 120, 0.25);
+  animation: ball-bob 1.8s ease-in-out infinite;
+}
+
+.title-screen__ball-q {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  border-radius: 50%;
+  background: #fff;
+  border: 4px solid var(--dp-ink);
+  font: 12px/22px var(--font-ui);
+  color: var(--dp-ink);
+}
+
+@keyframes ball-bob {
+  0%, 100% { transform: translateY(0) rotate(-6deg); }
+  50% { transform: translateY(-6px) rotate(6deg); }
+}
+
+.title-screen__title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 128px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font: 400 28px/1 var(--font-display);
+  letter-spacing: 1px;
+  animation: title-in 380ms cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+
+@keyframes title-in {
+  from { transform: scale(0.6); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.title-screen__subtitle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 228px;
+  margin: 0;
+  font: 9px/1.4 var(--font-ui);
+  color: #fff;
+  text-shadow: 2px 2px 0 var(--wtp-navy);
+}
+
+.title-screen__prompt {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 18px;
+  margin: 0;
+  font: 12px/1 var(--font-ui);
+  color: #fff;
+  text-shadow: 2px 2px 0 #7a0f0a;
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* ================= Who's That Pokémon? ================= */
+.wtp {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  animation: screen-fade 200ms ease-out both;
+}
+
+@keyframes screen-fade {
+  from { opacity: 0; }
+}
+
+.wtp__red {
+  position: absolute;
+  inset: -40px;
+  background: repeating-linear-gradient(-24deg, #e3271d 0 14px, #ef4636 14px 17px, #d61f17 17px 34px, #f25a44 34px 36px);
+  animation: streaks 3s linear infinite;
+}
+
+@keyframes streaks {
+  to { transform: translate(-36px, 16px); }
+}
+
+.wtp__burst {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 52% 64% at 30% 50%, #fff 0 30%, #f2fbfe 40%, #b4e3f1 60%, #6cc8e2 82%);
+  animation: burst-pulse 2.4s ease-in-out infinite;
+  transform-origin: 30% 50%;
+}
+
+@keyframes burst-pulse {
+  50% { transform: scale(1.035); }
+}
+
+.wtp__rays {
+  position: absolute;
+  inset: 0;
+  background: repeating-conic-gradient(from 2deg at 30% 50%, rgba(255, 255, 255, 0.6) 0deg 2.5deg, rgba(255, 255, 255, 0) 2.5deg 9deg);
+  mask-image: radial-gradient(ellipse 60% 70% at 30% 50%, transparent 0 18%, #000 45%);
+  -webkit-mask-image: radial-gradient(ellipse 60% 70% at 30% 50%, transparent 0 18%, #000 45%);
+}
+
+.wtp__mon {
+  position: absolute;
+  left: 18px;
+  top: 34px;
+  width: 252px;
+  height: 292px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: mon-in 380ms cubic-bezier(0.2, 1.35, 0.45, 1) both;
+}
+
+@keyframes mon-in {
+  from { transform: translateX(-140%) scale(0.7); }
+  to { transform: translateX(0) scale(1); }
+}
+
+.wtp__img {
+  max-width: 100%;
+  max-height: 100%;
+  filter: brightness(0);
+  transition: filter 420ms ease-out;
+  pointer-events: none;
+}
+
+.is-revealed .wtp__img {
+  filter: brightness(1) drop-shadow(0 4px 0 rgba(20, 40, 70, 0.25));
+  animation: reveal-pop 360ms cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+@keyframes reveal-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+.wtp__missing {
+  font: 160px/1 var(--font-ui);
+  color: #000;
+}
+
+.wtp__flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  pointer-events: none;
+  animation: flash 280ms ease-out forwards;
+}
+
+@keyframes flash {
+  from { opacity: 0.9; }
+  to { opacity: 0; }
+}
+
+.wtp__question {
+  position: absolute;
+  right: 58px;
+  top: 26px;
+  font: 400 116px/1 var(--font-ui);
+  text-shadow:
+    -6px -6px 0 var(--wtp-blue), 0 -6px 0 var(--wtp-blue), 6px -6px 0 var(--wtp-blue),
+    -6px 0 0 var(--wtp-blue), 6px 0 0 var(--wtp-blue),
+    -6px 6px 0 var(--wtp-blue), 0 6px 0 var(--wtp-blue), 6px 6px 0 var(--wtp-blue),
+    10px 12px 0 var(--wtp-navy), 4px 12px 0 var(--wtp-navy), 10px 6px 0 var(--wtp-navy);
+  animation: q-bob 1.4s ease-in-out infinite;
+  transition: transform 200ms ease-in, opacity 200ms ease-in;
+}
+
+@keyframes q-bob {
+  0%, 100% { transform: rotate(8deg) translateY(0); }
+  50% { transform: rotate(4deg) translateY(-6px); }
+}
+
+.is-revealed .wtp__question {
+  animation: none;
+  opacity: 0;
+  transform: scale(0.3) rotate(40deg);
+}
+
+.wtp__title {
+  position: absolute;
+  right: 12px;
+  top: 0;
+  bottom: 0;
+  width: 232px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 26px;
+  text-align: center;
+  font: 400 21px/1.15 var(--font-display);
+}
+
+.is-revealed .wtp__title {
+  justify-content: center;
+  padding-bottom: 0;
+}
+
+.wtp__reveal-name {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  animation: name-pop 320ms cubic-bezier(0.2, 1.6, 0.4, 1) both;
+  word-break: break-word;
+}
+
+@keyframes name-pop {
+  from { transform: scale(0.4); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.wtp__loading {
+  position: absolute;
+  left: 18px;
+  top: 34px;
+  width: 252px;
+  height: 292px;
+  display: grid;
+  place-items: center;
+}
+
+.wtp__loading .pokeball-icon {
+  width: 40px;
+  height: 40px;
+  border-width: 3px;
+}

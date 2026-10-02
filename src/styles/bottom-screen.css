@@ -406,66 +406,157 @@
 /* ================= Type answer ================= */
 .type-answer {
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 }
 
-.type-answer__box {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  justify-content: center;
-}
-
-.type-answer__prompt {
-  font-size: 9px;
-  color: #6a6a6a;
-}
-
-.type-answer__input {
-  width: 100%;
-  font: 16px/1 var(--font-ui);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--dp-ink);
-  caret-color: var(--dp-red);
-  padding: 12px;
-  border: 3px solid var(--dp-ink);
-  border-radius: 6px;
-  background: repeating-linear-gradient(90deg, #eef4fa 0 20px, #e3ecf5 20px 22px);
-}
-
-.type-answer__input:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px #a8c0d8;
-}
-
-.type-answer__input::placeholder {
-  color: #a8b0b8;
-  text-transform: none;
-}
-
-.type-answer__meta {
+/* ================= DS keyboard (D/P name-entry screen) ================= */
+.ds-kb {
+  height: 100%;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  min-height: 30px;
+}
+
+.ds-kb__top {
+  flex: none;
+  height: 48px;
+  display: flex;
+  gap: 6px;
+}
+
+.ds-kb__field {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3px;
+  padding: 0 8px 7px;
+  background: #fff;
+  border: 3px solid #4f5868;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 2px #fff, inset 0 0 0 4px #a8c0d8;
+}
+
+.ds-kb__field.is-flash {
+  animation: kb-wrong 420ms steps(2);
+}
+
+@keyframes kb-wrong {
+  0%, 70% { background: #ff9a8a; border-color: #c0392b; }
+}
+
+.ds-kb__slot {
+  width: 20px;
+  height: 22px;
+  display: grid;
+  place-items: end center;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--dp-ink);
+  border-bottom: 2px solid #a8b0b8;
+}
+
+.ds-kb__slot.is-ghost {
+  color: #b4bcc4;
+}
+
+.ds-kb__slot.is-caret {
+  border-bottom-color: var(--dp-red);
+  animation: kb-caret 0.8s steps(2) infinite;
+}
+
+@keyframes kb-caret {
+  50% { border-bottom-color: transparent; }
+}
+
+.ds-kb__status {
+  flex: none;
+  margin: 0 2px;
   font-size: 8px;
-}
-
-.type-answer__hint {
-  color: var(--dp-blue-dark);
-  letter-spacing: 2px;
-}
-
-.type-answer__notice {
+  line-height: 1.4;
   color: #6a6a6a;
 }
 
-.type-answer__notice.is-bad {
+.ds-kb__status.is-bad {
   color: #c0392b;
+}
+
+.ds-kb__keys {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px;
+  border: 3px solid #4f5868;
+  border-radius: 8px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.55) 1px, transparent 1px) 0 0 / 8px 8px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.55) 1px, transparent 1px) 0 0 / 8px 8px,
+    #c8dcec;
+}
+
+.ds-kb__row {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+}
+
+.ds-kb__key {
+  height: 32px;
+  padding: 0;
+  border: 2px solid var(--dp-ink);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--dp-ink);
+  background: linear-gradient(#fff 0 58%, #e4e0d4 58%);
+  box-shadow: inset 0 0 0 1px #fff, 0 3px 0 #6a7280;
+  transition: transform 50ms, box-shadow 50ms, background 50ms;
+}
+
+.ds-kb__key:active:not(:disabled),
+.ds-kb__key.is-pressed {
+  transform: translateY(3px);
+  box-shadow: inset 0 0 0 1px #fff, 0 0 0 #6a7280;
+  background: linear-gradient(#fff6b0 0 58%, #f0d860 58%);
+}
+
+.ds-kb__key--space {
+  grid-column: span 4;
+  font-size: 9px;
+}
+
+.ds-kb__fn {
+  width: 66px;
+  height: auto;
+  font-size: 10px;
+  letter-spacing: 1px;
+  border-width: 3px;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 2px #fff, 0 3px 0 var(--dp-ink);
+}
+
+.ds-kb__fn--ok {
+  color: #fff;
+  background: linear-gradient(#f8e070 0 12%, #e8c020 12% 60%, #c8a018 60%);
+  box-shadow: inset 0 0 0 2px #fff6b8, 0 3px 0 var(--dp-ink);
+  text-shadow: -2px 0 #6a5410, 2px 0 #6a5410, 0 -2px #6a5410, 0 2px #6a5410;
+}
+
+.ds-kb__fn:active:not(:disabled),
+.ds-kb__fn.is-pressed {
+  box-shadow: inset 0 0 0 2px #fff, 0 0 0 var(--dp-ink);
+}
+
+.ds-kb.is-disabled .ds-kb__keys,
+.ds-kb.is-disabled .ds-kb__fn {
+  opacity: 0.55;
+}
+
+.name-entry {
+  flex: 1;
+  min-height: 0;
+  padding-top: 4px;
 }
 
 /* ================= Reveal ================= */
@@ -577,4 +668,196 @@
 .status-error .status-box {
   flex: 1;
   height: auto;
+}
+
+/* ================= Trainer menus (players, leaderboard, results) ================= */
+.menu__secondary {
+  flex: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.menu__secondary .chip-btn {
+  height: 36px;
+  font-size: 9px;
+}
+
+.dp-list {
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 10px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.dp-list::-webkit-scrollbar {
+  display: none;
+}
+
+.dp-list__empty {
+  margin: auto;
+  max-width: 300px;
+  text-align: center;
+  font-size: 9px;
+  line-height: 1.8;
+  color: #6a6a6a;
+}
+
+.dp-list__row {
+  flex: none;
+  position: relative;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px 0 30px;
+  border: 3px solid #4f5868;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: inset 0 0 0 2px #fff, inset 0 0 0 4px #d8e0e8;
+  font-size: 11px;
+  text-align: left;
+}
+
+.dp-list__row.is-cursor {
+  border-color: var(--dp-red);
+  box-shadow: inset 0 0 0 2px #fff, inset 0 0 0 4px #f8c8c0;
+}
+
+/* Same red arrow cursor as the move buttons */
+.dp-list__row.is-cursor::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: calc(50% - 6px);
+  border: 6px solid transparent;
+  border-left: 8px solid var(--dp-red);
+  animation: cursor-nudge 0.8s steps(2) infinite;
+}
+
+.dp-list__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dp-list__value {
+  font-size: 9px;
+  color: #6a6a6a;
+}
+
+.dp-list__rank {
+  width: 30px;
+  color: #6a6a6a;
+}
+
+.dp-list__star {
+  color: #d8a010;
+  font: 14px/1 var(--font-hw); /* the pixel font has no ★ glyph */
+}
+
+.dp-list--ranks .dp-list__value {
+  font-size: 11px;
+  color: var(--dp-ink);
+}
+
+.dp-list__row.is-rank-1 .dp-list__rank { color: #c89a10; }
+.dp-list__row.is-rank-2 .dp-list__rank { color: #8a96a2; }
+.dp-list__row.is-rank-3 .dp-list__rank { color: #b0703a; }
+
+.bar-btn--back {
+  flex: none;
+  height: 46px;
+}
+
+/* TOTAL | HIGH toggle in the leaderboard header */
+.seg {
+  display: flex;
+  border: 2px solid var(--dp-ink);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.seg__btn {
+  border: 0;
+  padding: 5px 7px;
+  font-size: 7px;
+  color: #6a6a6a;
+  background: linear-gradient(#f2f2ea 0 58%, #d6ceb8 58%);
+}
+
+.seg__btn + .seg__btn {
+  border-left: 2px solid var(--dp-ink);
+}
+
+.seg__btn.is-selected {
+  color: #fff;
+  background: linear-gradient(#f8e070 0 12%, #e8c020 12% 60%, #c8a018 60%);
+  text-shadow: -1px 0 #6a5410, 1px 0 #6a5410, 0 -1px #6a5410, 0 1px #6a5410;
+}
+
+.results {
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+}
+
+.results__title {
+  font-size: 15px;
+  text-align: center;
+  color: var(--dp-blue-dark);
+}
+
+.results__badge {
+  text-align: center;
+  font-size: 9px;
+  color: var(--dp-red);
+  animation: attention-text 0.7s steps(2) infinite;
+}
+
+@keyframes attention-text {
+  50% { opacity: 0.35; }
+}
+
+/* Label ........ value rows (results + trainer card) */
+.stat-rows {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stat-rows__row {
+  --row-bg: #fff;
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  line-height: 1.5;
+  background: radial-gradient(circle, #b8c0c8 1px, transparent 1.5px) 0 calc(100% - 4px) / 6px 6px repeat-x;
+}
+
+.stat-rows dt,
+.stat-rows dd {
+  margin: 0;
+  background: var(--row-bg);
+}
+
+.stat-rows dt {
+  padding-right: 6px;
+}
+
+.stat-rows dd {
+  padding-left: 6px;
 }

@@ -1,8 +1,11 @@
-import { MAX_ATTEMPTS, pad2 } from '../utils/gameLogic.js';
+import { MAX_ATTEMPTS, SESSION_LENGTH, pad2 } from '../utils/gameLogic.js';
 
-export default function ScoreBar({ stats, attemptsLeft }) {
+export default function ScoreBar({ stats, question, attemptsLeft }) {
   return (
     <div className="score-bar">
+      <span className="score-bar__item">
+        Q <b>{question}/{SESSION_LENGTH}</b>
+      </span>
       <span className="score-bar__item">
         SCORE <b>{pad2(stats.score)}</b>
       </span>

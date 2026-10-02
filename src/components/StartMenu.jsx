@@ -1,5 +1,4 @@
 import { GENERATION_OPTIONS } from '../config/generationRanges.js';
-import { pad2 } from '../utils/gameLogic.js';
 import { MuteButton } from './BottomBar.jsx';
 
 export const MODES = [
@@ -7,17 +6,15 @@ export const MODES = [
   { id: 'type', label: 'Type Answer', accent: 'pink' },
 ];
 
-export default function StartMenu({ settings, onChange, onStart, stats, onResetStats, muted, onToggleMute }) {
+export default function StartMenu({ settings, onChange, onStart, trainerName, onChangeUser, muted, onToggleMute }) {
   return (
     <div className="menu">
       <div className="menu__header">
         <span className="pokeball-icon" />
         <span className="menu__heading">Game setup</span>
-        {stats.attempted > 0 && (
-          <button className="menu__reset" onClick={onResetStats}>
-            {pad2(stats.score)} pts · reset
-          </button>
-        )}
+        <button className="menu__reset" onClick={onChangeUser} title="Change user (B)">
+          {trainerName} · change user
+        </button>
         <MuteButton muted={muted} onToggle={onToggleMute} small />
       </div>
 

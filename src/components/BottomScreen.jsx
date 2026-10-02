@@ -4,23 +4,72 @@ import MultipleChoice from './MultipleChoice.jsx';
 import TypeAnswer from './TypeAnswer.jsx';
 import RevealScreen from './RevealScreen.jsx';
 import BottomBar from './BottomBar.jsx';
+import PlayerSelect from './PlayerSelect.jsx';
+import AddPlayer from './AddPlayer.jsx';
+import Leaderboard from './Leaderboard.jsx';
+import ResultsScreen from './ResultsScreen.jsx';
+import { SESSION_LENGTH } from '../utils/gameLogic.js';
 
 export default function BottomScreen(props) {
   const { phase, settings, round, stats, muted, cryBlocked, error, cursor } = props;
-  const { onSettings, onStart, onResetStats, onToggleMute, onPick, onCursor, onTypeGuess, onNext, onMenu, onCry, onRetry } = props;
+  const { onSettings, onStart, onToggleMute, onPick, onCursor, onTypeGuess, onNext, onMenu, onCry, onRetry } = props;
+  const { trainers } = props;
 
-  if (phase === 'menu') {
+  // Full-screen menus (no score bar / bottom bar).
+  let menu = null;
+  if (phase === 'players') {
+    menu = (
+      <PlayerSelect
+        players={trainers.players}
+        currentId={trainers.currentId}
+        onSelect={trainers.onSelect}
+        onPlay={trainers.onPlay}
+        onLeaderboard={trainers.onLeaderboard}
+        onAdd={trainers.onAdd}
+        muted={muted}
+        onToggleMute={onToggleMute}
+      />
+    );
+  } else if (phase === 'addPlayer') {
+    menu = <AddPlayer onSave={trainers.onSave} onCancel={trainers.onCancelAdd} />;
+  } else if (phase === 'leaderboard') {
+    menu = (
+      <Leaderboard
+        ranked={trainers.ranked}
+        sort={trainers.sort}
+        cursor={trainers.lbCursor}
+        currentId={trainers.currentId}
+        onSort={trainers.onSort}
+        onCursor={trainers.onLbCursor}
+        onBack={trainers.onCloseLeaderboard}
+      />
+    );
+  } else if (phase === 'results') {
+    menu = (
+      <ResultsScreen
+        result={trainers.lastResult}
+        onPlayAgain={onStart}
+        onLeaderboard={trainers.onLeaderboard}
+        onMenu={onMenu}
+      />
+    );
+  } else if (phase === 'menu') {
+    menu = (
+      <StartMenu
+        settings={settings}
+        onChange={onSettings}
+        onStart={onStart}
+        trainerName={trainers.currentName}
+        onChangeUser={trainers.onChangeUser}
+        muted={muted}
+        onToggleMute={onToggleMute}
+      />
+    );
+  }
+  if (menu) {
     return (
-      <div className="bottom-screen screen-enter" key="menu">
-        <StartMenu
-          settings={settings}
-          onChange={onSettings}
-          onStart={onStart}
-          stats={stats}
-          onResetStats={onResetStats}
-          muted={muted}
-          onToggleMute={onToggleMute}
-        />
+      <div className="bottom-screen screen-enter" key={phase}>
+        {menu}
       </div>
     );
   }
@@ -59,7 +108,15 @@ export default function BottomScreen(props) {
       </div>
     );
   } else if (phase === 'revealed') {
-    body = <RevealScreen pokemon={round.pokemon} outcome={round.outcome} points={round.points} onNext={onNext} />;
+    body = (
+      <RevealScreen
+        pokemon={round.pokemon}
+        outcome={round.outcome}
+        points={round.points}
+        onNext={onNext}
+        nextLabel={stats.attempted >= SESSION_LENGTH ? 'SEE RESULTS' : 'NEXT POKÉMON'}
+      />
+    );
   } else if (settings.mode === 'type') {
     body = (
       <TypeAnswer
@@ -86,7 +143,11 @@ export default function BottomScreen(props) {
 
   return (
     <div className="bottom-screen">
-      <ScoreBar stats={stats} attemptsLeft={phase === 'guessing' ? round.attemptsLeft : null} />
+      <ScoreBar
+        stats={stats}
+        question={Math.min(stats.attempted + (phase === 'revealed' ? 0 : 1), SESSION_LENGTH)}
+        attemptsLeft={phase === 'guessing' ? round.attemptsLeft : null}
+      />
       <div className="bottom-screen__body screen-enter" key={`${phase}-${round?.pokemon?.id ?? 'x'}`}>
         {body}
       </div>

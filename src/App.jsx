@@ -8,6 +8,7 @@ import { GENERATION_OPTIONS } from './config/generationRanges.js';
 import { audio } from './utils/audioManager.js';
 import {
   MAX_ATTEMPTS,
+  SESSION_LENGTH,
   applyResult,
   initialStats,
   isCorrectGuess,
@@ -17,6 +18,16 @@ import {
   prepareRound,
   rememberId,
 } from './utils/gameLogic.js';
+import {
+  cleanName,
+  createPlayer,
+  loadCurrentId,
+  loadPlayers,
+  rankPlayers,
+  recordSession,
+  saveCurrentId,
+  savePlayers,
+} from './utils/playerStorage.js';
 
 const DS_WIDTH = 980;
 const DS_HEIGHT = 1000;
@@ -53,8 +64,8 @@ const isTypingTarget = (el) => el && (el.tagName === 'INPUT' || el.tagName === '
 export default function App() {
   const scale = useFitScale();
 
-  // phase: 'menu' | 'loading' | 'guessing' | 'revealed' | 'error'
-  const [phase, setPhase] = useState('menu');
+  // phase: 'players' | 'addPlayer' | 'leaderboard' | 'menu' | 'loading' | 'guessing' | 'revealed' | 'results' | 'error'
+  const [phase, setPhase] = useState('players');
   const [settings, setSettings] = useState({ gen: 'all', mode: 'choice' });
   const [round, setRound] = useState(null);
   const [stats, setStats] = useState(initialStats);
@@ -64,6 +75,21 @@ export default function App() {
   const [cursor, setCursor] = useState(0);
   const [shakeKey, setShakeKey] = useState(0);
   const [dsColor, setDsColor] = useState(loadColor);
+
+  // Trainers (local profiles) and leaderboard view state.
+  const [players, setPlayers] = useState(loadPlayers);
+  const [currentId, setCurrentId] = useState(() => {
+    const saved = loadCurrentId();
+    const list = loadPlayers();
+    return list.some((p) => p.id === saved) ? saved : list[0]?.id ?? null;
+  });
+  const [lbSort, setLbSort] = useState('total');
+  const [lbCursor, setLbCursor] = useState(0);
+  const [lbReturn, setLbReturn] = useState('players');
+  const [lastResult, setLastResult] = useState(null);
+
+  const currentPlayer = players.find((p) => p.id === currentId) ?? null;
+  const ranked = rankPlayers(players, lbSort);
 
   const recentIds = useRef([]);
   const prefetched = useRef(null);
@@ -142,11 +168,19 @@ export default function App() {
   const startGame = () => {
     audio.unlock();
     audio.play('menuSelect');
+    setStats(initialStats()); // a game is SESSION_LENGTH Pokémon, scored from zero
     loadRound(settings.gen);
   };
 
   const nextPokemon = () => {
     audio.play('menuSelect');
+    if (stats.attempted >= SESSION_LENGTH) {
+      clearTimers();
+      audio.stopCry();
+      prefetched.current = null;
+      setPhase('results');
+      return;
+    }
     loadRound(settings.gen);
   };
 
@@ -161,12 +195,23 @@ export default function App() {
   const reveal = (correct, attemptNumber, pokemon) => {
     const points = correct ? pointsForAttempt(attemptNumber) : 0;
     setRound((r) => ({ ...r, outcome: correct ? 'correct' : 'failed', points }));
-    setStats((s) => applyResult(s, { correct, points }));
+    const next = applyResult(stats, { correct, points });
+    setStats(next);
+    if (next.attempted >= SESSION_LENGTH) finishSession(next);
     setPhase('revealed');
     audio.stopCry(); // cut the intro clip if it's still playing
     audio.play('reveal');
     if (correct) later(() => audio.play('correct'), 160);
     later(() => playCry(pokemon), 750);
+  };
+
+  /** Saves a finished game to the current trainer straight away. */
+  const finishSession = (session) => {
+    const newHigh = Boolean(currentPlayer) && session.score > currentPlayer.highScore;
+    if (currentPlayer) {
+      updatePlayers(players.map((p) => (p.id === currentPlayer.id ? recordSession(p, session) : p)));
+    }
+    setLastResult({ ...session, newHigh });
   };
 
   const registerWrong = (patch) => {
@@ -211,6 +256,93 @@ export default function App() {
     if (!next) audio.play('menuSelect');
   };
 
+  /* ---------- Trainers ---------- */
+
+  const updatePlayers = (next) => {
+    setPlayers(next);
+    savePlayers(next);
+  };
+
+  const selectPlayer = (id) => {
+    setCurrentId(id);
+    saveCurrentId(id);
+  };
+
+  const pickPlayer = (id) => {
+    if (id === currentId) return;
+    audio.play('menuSelect');
+    selectPlayer(id);
+  };
+
+  const openAddPlayer = () => {
+    audio.unlock();
+    audio.play('menuSelect');
+    setPhase('addPlayer');
+  };
+
+  const playGame = () => {
+    if (!currentPlayer) {
+      openAddPlayer();
+      return;
+    }
+    audio.unlock();
+    audio.play('menuSelect');
+    setPhase('menu');
+  };
+
+  /** Returns an error message for the name-entry screen, or nothing on success. */
+  const savePlayer = (rawName) => {
+    const name = cleanName(rawName);
+    let err = '';
+    if (!name) err = 'Enter a name first.';
+    else if (players.some((p) => p.name === name)) err = 'That name is taken.';
+    if (err) {
+      audio.play('incorrect');
+      return err;
+    }
+    const player = createPlayer(name);
+    updatePlayers([...players, player]);
+    selectPlayer(player.id);
+    audio.play('correct');
+    setPhase('players');
+    return '';
+  };
+
+  const changeUser = () => {
+    requestId.current++;
+    clearTimers();
+    audio.stopCry();
+    audio.play('menuSelect');
+    setPhase('players');
+  };
+
+  const openLeaderboard = () => {
+    audio.play('menuSelect');
+    setLbReturn(phase === 'results' ? 'results' : 'players');
+    setLbCursor(Math.max(0, ranked.findIndex((p) => p.id === currentId)));
+    setPhase('leaderboard');
+  };
+
+  const closeLeaderboard = () => {
+    audio.play('menuSelect');
+    setPhase(lbReturn);
+  };
+
+  const sortLeaderboard = (sort) => {
+    if (sort === lbSort) return;
+    audio.play('menuSelect');
+    const focusId = ranked[lbCursor]?.id;
+    const next = rankPlayers(players, sort);
+    setLbSort(sort);
+    setLbCursor(Math.max(0, next.findIndex((p) => p.id === focusId)));
+  };
+
+  const moveList = (dir, length, index, apply) => {
+    if (!length || (dir !== 'up' && dir !== 'down')) return;
+    const nextIdx = (index + (dir === 'down' ? 1 : -1) + length) % length;
+    if (nextIdx !== index) apply(nextIdx);
+  };
+
   const changeColor = (id) => {
     audio.play('menuSelect');
     setDsColor(id);
@@ -249,14 +381,18 @@ export default function App() {
     switch (name) {
       case 'a':
       case 'start':
-        if (phase === 'menu') startGame();
+        if (phase === 'players') playGame();
+        else if (phase === 'menu' || phase === 'results') startGame();
         else if (phase === 'revealed') nextPokemon();
         else if (phase === 'error') loadRound(settings.gen);
         else if (name === 'a' && phase === 'guessing' && settings.mode === 'choice') pickChoice(round.choices[cursor]);
         break;
       case 'b':
       case 'power':
-        if (phase !== 'menu') goMenu();
+        if (phase === 'menu') changeUser();
+        else if (phase === 'leaderboard') closeLeaderboard();
+        else if (phase === 'addPlayer') changeUser();
+        else if (phase !== 'players') goMenu();
         break;
       case 'x':
       case 'y':
@@ -269,7 +405,17 @@ export default function App() {
       case 'down':
       case 'left':
       case 'right':
-        if (phase === 'menu') moveMenu(name);
+        if (phase === 'players') {
+          const idx = players.findIndex((p) => p.id === currentId);
+          moveList(name, players.length, idx, (i) => pickPlayer(players[i].id));
+        } else if (phase === 'leaderboard') {
+          if (name === 'left' || name === 'right') sortLeaderboard(lbSort === 'total' ? 'high' : 'total');
+          else
+            moveList(name, ranked.length, lbCursor, (i) => {
+              audio.play('menuSelect');
+              setLbCursor(i);
+            });
+        } else if (phase === 'menu') moveMenu(name);
         else if (phase === 'guessing' && settings.mode === 'choice') moveCursor(name);
         break;
       default:
@@ -319,7 +465,14 @@ export default function App() {
             shakeKey={shakeKey}
             color={dsColor}
             onButton={handleButton}
-            top={<TopScreen phase={phase} round={round} />}
+            top={
+              <TopScreen
+                phase={phase}
+                round={round}
+                statsPlayer={phase === 'results' ? currentPlayer : ranked[lbCursor]}
+                statsBadge={phase === 'results' && lastResult?.newHigh ? 'NEW BEST!' : ranked[lbCursor]?.id === currentId ? 'YOU' : null}
+              />
+            }
             bottom={
               <BottomScreen
                 phase={phase}
@@ -332,9 +485,27 @@ export default function App() {
                 cursor={cursor}
                 onSettings={updateSettings}
                 onStart={startGame}
-                onResetStats={() => {
-                  audio.play('menuSelect');
-                  setStats(initialStats());
+                trainers={{
+                  players,
+                  currentId,
+                  currentName: currentPlayer?.name ?? '',
+                  ranked,
+                  sort: lbSort,
+                  lbCursor,
+                  lastResult,
+                  onSelect: pickPlayer,
+                  onPlay: playGame,
+                  onAdd: openAddPlayer,
+                  onSave: savePlayer,
+                  onCancelAdd: changeUser,
+                  onChangeUser: changeUser,
+                  onLeaderboard: openLeaderboard,
+                  onCloseLeaderboard: closeLeaderboard,
+                  onSort: sortLeaderboard,
+                  onLbCursor: (i) => {
+                    if (i !== lbCursor) audio.play('menuSelect');
+                    setLbCursor(i);
+                  },
                 }}
                 onToggleMute={toggleMute}
                 onPick={pickChoice}

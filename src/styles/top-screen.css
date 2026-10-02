@@ -287,3 +287,61 @@
   height: 40px;
   border-width: 3px;
 }
+
+/* ================= Trainer card (leaderboard / results top screen) ================= */
+.trainer-card {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background:
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0 12px, transparent 12px 24px),
+    linear-gradient(#5a88d0, #3a64b0);
+}
+
+.trainer-card__panel {
+  width: 400px;
+  padding: 0 0 16px;
+  border: 3px solid var(--dp-ink);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: inset 0 0 0 2px #fff, inset 0 0 0 4px #a8c0d8, 0 5px 0 rgba(0, 20, 60, 0.35);
+  color: var(--dp-ink);
+  overflow: hidden;
+}
+
+.trainer-card__panel--empty {
+  padding: 40px 20px;
+  text-align: center;
+  font: 10px/1.6 var(--font-ui);
+}
+
+.trainer-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  background: linear-gradient(#ececec 0 60%, #d4d4d4 60%);
+  border-bottom: 3px solid #a8a8a8;
+  font: 9px/1 var(--font-ui);
+  color: #6a6a6a;
+}
+
+.trainer-card__badge {
+  padding: 4px 6px;
+  border-radius: 4px;
+  color: #fff;
+  background: var(--dp-red);
+}
+
+.trainer-card__name {
+  margin: 0 20px 14px;
+  font: 18px/1.2 var(--font-ui);
+  color: var(--dp-blue-dark);
+}
+
+.trainer-card .stat-rows {
+  margin: 0 20px;
+  font-family: var(--font-ui);
+}

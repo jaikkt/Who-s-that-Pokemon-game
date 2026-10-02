@@ -6,7 +6,7 @@ const RESULT_COPY = {
   0: 'Out of tries this time.',
 };
 
-export default function RevealScreen({ pokemon, outcome, points, onNext }) {
+export default function RevealScreen({ pokemon, outcome, points, onNext, nextLabel = 'NEXT POKÉMON' }) {
   const nextRef = useRef(null);
   useEffect(() => {
     nextRef.current?.focus({ preventScroll: true });
@@ -35,7 +35,7 @@ export default function RevealScreen({ pokemon, outcome, points, onNext }) {
       </div>
       <button ref={nextRef} className="move-btn move-btn--yellow move-btn--next" onClick={onNext}>
         <span className="move-btn__face">
-          <span className="move-btn__name">NEXT POKÉMON</span>
+          <span className="move-btn__name">{nextLabel}</span>
         </span>
       </button>
     </div>

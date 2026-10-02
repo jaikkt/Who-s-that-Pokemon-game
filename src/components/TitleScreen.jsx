@@ -1,4 +1,4 @@
-export default function TitleScreen() {
+export default function TitleScreen({ subtitle = 'Test your Pokédex knowledge', prompt = 'PRESS START' }) {
   return (
     <div className="title-screen">
       <div className="title-screen__rays" />
@@ -10,8 +10,8 @@ export default function TitleScreen() {
         <span>WHO'S THAT</span>
         <span>POKÉMON?</span>
       </h1>
-      <p className="title-screen__subtitle">Test your Pokédex knowledge</p>
-      <p className="title-screen__prompt">PRESS START</p>
+      <p className="title-screen__subtitle">{subtitle}</p>
+      {prompt && <p className="title-screen__prompt">{prompt}</p>}
     </div>
   );
 }

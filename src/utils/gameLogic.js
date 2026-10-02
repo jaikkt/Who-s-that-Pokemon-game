@@ -4,6 +4,7 @@ import { getPokemon, getSpeciesIndex, preloadImage } from './pokemonApi.js';
 export const MAX_ATTEMPTS = 2;
 export const CHOICE_COUNT = 4;
 export const POINTS_BY_ATTEMPT = { 1: 2, 2: 1 };
+export const SESSION_LENGTH = 10; // Pokémon per game; results + leaderboard save after the last one
 const RECENT_MEMORY = 30;
 
 export const randomInt = (min, max) => min + Math.floor(Math.random() * (max - min + 1));

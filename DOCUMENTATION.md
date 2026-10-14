@@ -1,6 +1,6 @@
-# Who's That Pokémon? — DS Edition: Project Documentation
+a# Who's That Pokémon? — DS Edition: Project Documentation
 
-This is a browser guessing game styled after Pokémon Diamond & Pearl and shown inside a recreated Nintendo DS. A random Pokémon from PokéAPI appears as a black silhouette while the "Who's that Pokémon?" clip plays, and the player gets two attempts to name it. Answers can be picked from four choices or typed on a Diamond & Pearl-style touch keyboard. Players pick a local Trainer profile, a game is 10 Pokémon, and each finished game is saved to that Trainer and shown on a leaderboard.
+This is a browser guessing game styled after Pokémon Diamond & Pearl and shown inside a recreated Nintendo DS. A random Pokémon from PokéAPI appears as a black silhouette while the "Who's that Pokémon?" clip plays, and the player gets two attempts to name it. Answers can be picked from four choices or typed in. Score, streak and accuracy carry across rounds for the whole browser session.
 
 This document covers how to run the project, how the code is organised, how one round moves through the system, and how to change or extend each part.
 
@@ -51,13 +51,12 @@ To deploy, run `npm run build` and upload `/dist` to any static host (Vercel, Ne
 
 ## 2. How to play
 
-1. On the **Choose your Trainer** screen, pick your Trainer (or **+ ADD USER** to make one) and press **PLAY GAME**.
-2. Pick a **generation** (All, or I–IX) and a **mode** (Multiple Choice or Type Answer), then press **START GAME**.
+1. On the start screen, pick a **generation** (All, or I–IX) and a **mode** (Multiple Choice or Type Answer).
+2. Press **START GAME**.
 3. A silhouette slides onto the top screen and the "Who's that Pokémon?" clip plays. The Pokémon's cry is held back until the reveal so it can't give the answer away.
 4. Answer on the bottom screen. You get **2 attempts**, shown as Poké Balls in the score bar.
 5. When you answer correctly, or use up both attempts, the Pokémon is revealed with "IT'S [NAME]!".
-6. Press **NEXT POKÉMON** to continue, or **MENU** to change settings (this abandons the current game).
-7. After the 10th Pokémon, **SEE RESULTS** shows the game summary. The score is saved to your Trainer at that moment. From there: **PLAY AGAIN**, **LEADERBOARD** or **MAIN MENU**.
+6. Press **NEXT POKÉMON** to continue, or **MENU** to change settings.
 
 ### Scoring
 
@@ -73,10 +72,7 @@ To deploy, run `npm run build` and upload `/dist` to any static host (Vercel, Ne
 | --- | --- | --- | --- |
 | Confirm, start, next Pokémon, retry | Tap the on-screen button | `Enter` | **A**, **START** |
 | Pick the highlighted answer (Multiple Choice) | Tap the answer | `Enter` | **A** |
-| Back to menu / back one screen | **MENU**, BACK, cancel | `Esc` | **B**, **POWER** |
-| Choose a Trainer / leaderboard row | Tap the row | `↑` `↓` | D-pad up/down |
-| Leaderboard TOTAL ⇄ HIGH | Tap the toggle | `←` `→` | D-pad left/right |
-| Type a name (Type Answer, TRAINER NAME) | On-screen keys, BACK, OK | Letters, digits, space, `Backspace`, `Enter` | — |
+| Back to menu | **MENU** | `Esc` | **B**, **POWER** |
 | Move the answer cursor | Hover | Arrow keys | D-pad |
 | Change generation (menu) | Tap a generation | `←` `→` | D-pad left/right |
 | Change mode (menu) | Tap a mode | `↑` `↓` | D-pad up/down |
@@ -104,16 +100,12 @@ There are no runtime dependencies besides `react` and `react-dom`.
 
 ```
 whos-that-pokemon/
-├── index.html                  Page shell, favicon links, Google Fonts link, preconnects
+├── index.html                  Page shell, Google Fonts link, preconnects
 ├── package.json
 ├── vite.config.js
 ├── README.md                   Short run instructions
 ├── DOCUMENTATION.md            This file
-├── favicon.png                 Source artwork for the icons (not served)
 ├── public/
-│   ├── favicon-32.png          Browser-tab icon
-│   ├── favicon-192.png         High-res / Android icon
-│   ├── apple-touch-icon.png    iOS home-screen icon (180×180)
 │   └── sounds/                 whos-that-pokemon.mp3 + replacement sound files
 └── src/
     ├── main.jsx                React entry; imports the four stylesheets
@@ -122,8 +114,7 @@ whos-that-pokemon/
     │   └── generationRanges.js Generation → Pokédex ID ranges
     ├── utils/
     │   ├── pokemonApi.js       Fetching, caching, name formatting, image preload
-    │   ├── gameLogic.js        Round prep, answer checks, hints, scoring, SESSION_LENGTH
-    │   ├── playerStorage.js    Trainer profiles in localStorage, ranking
+    │   ├── gameLogic.js        Round prep, answer checks, hints, scoring
     │   └── audioManager.js     Cries, sound effects, mute
     ├── components/
     │   ├── DSConsole.jsx       The physical DS (fixed 980×1000 canvas)
@@ -134,16 +125,9 @@ whos-that-pokemon/
     │   ├── StartMenu.jsx       Generation + mode setup
     │   ├── ScoreBar.jsx        Score, streak, accuracy, attempts
     │   ├── MultipleChoice.jsx  2×2 D&P move-button grid
-    │   ├── TypeAnswer.jsx      Typed-answer round (uses DSKeyboard)
-    │   ├── DSKeyboard.jsx      D&P name-entry keyboard: slotted field, BACK / OK, keys
-    │   ├── PlayerSelect.jsx    Choose your Trainer + PLAY GAME / LEADERBOARD / + ADD USER
-    │   ├── AddPlayer.jsx       TRAINER NAME entry
-    │   ├── Leaderboard.jsx     TRAINER RANKINGS, TOTAL | HIGH toggle
-    │   ├── PlayerStats.jsx     Top-screen trainer card (lifetime stats)
-    │   ├── ResultsScreen.jsx   End-of-game summary
+    │   ├── TypeAnswer.jsx      Text entry + SUBMIT
     │   ├── RevealScreen.jsx    Result panel + NEXT POKÉMON
-    │   ├── BottomBar.jsx       Cry / MENU / mute row (+ MuteButton)
-    │   └── ColorPicker.jsx     DS colour swatches under the console (+ DS_COLORS)
+    │   └── BottomBar.jsx       Cry / MENU / mute row (+ MuteButton)
     └── styles/
         ├── base.css            Fonts, colour tokens, page stage, shared bits
         ├── ds.css              Hardware shell
@@ -189,8 +173,6 @@ The layers follow a few rules:
 
 `App.jsx` keeps a single `phase` string that decides what both screens render.
 
-The game now starts on `players`. PLAY GAME goes to `menu` (or to `addPlayer` when there are no Trainers yet). The diagram below is the round loop inside a game. After the 10th reveal, NEXT becomes SEE RESULTS and goes to `results`. `leaderboard` can be opened from `players` or `results`, and BACK returns there.
-
 ```
             START GAME / A / Start
    ┌──────┐ ─────────────────────► ┌─────────┐   fetch ok    ┌──────────┐
@@ -209,11 +191,7 @@ The game now starts on `players`. PLAY GAME goes to `menu` (or to `addPlayer` wh
 
 | Phase | Top screen | Bottom screen |
 | --- | --- | --- |
-| `players` (start) | `TitleScreen` "Choose your Trainer" | `PlayerSelect` |
-| `addPlayer` | `TitleScreen` "A new Trainer appears!" | `AddPlayer` (DSKeyboard) |
-| `leaderboard` | `PlayerStats` for the cursor row | `Leaderboard` |
-| `menu` | `TitleScreen` | `StartMenu` (header shows the Trainer + "change user") |
-| `results` | `PlayerStats` for the current Trainer | `ResultsScreen` |
+| `menu` | `TitleScreen` | `StartMenu` |
 | `loading` | Burst background + spinning Poké Ball | Score bar + "Something is rustling…" |
 | `guessing` | Silhouette, "?", "WHO'S THAT POKÉMON?" | Score bar + `MultipleChoice` or `TypeAnswer` + bottom bar |
 | `revealed` | Full artwork + "IT'S [NAME]!" | Score bar + `RevealScreen` + bottom bar |
@@ -382,60 +360,6 @@ The table below shows the effect.
 
 ---
 
-### Games, Trainers and the leaderboard (`playerStorage.js`)
-
-**A game is `SESSION_LENGTH` (10) Pokémon.** `startGame()` resets `stats` to zero. `stats` now means "this game", and the score bar shows `Q n/10`. When the 10th reveal happens, `finishSession()` saves it to the current Trainer immediately, so closing the tab on the results screen loses nothing. Leaving a game early with MENU doesn't save it.
-
-Each Trainer is stored in `localStorage` under `wtp-players`. The selected Trainer is under `wtp-current-player` and the DS colour under `wtp-ds-color`:
-
-```js
-{ id, name, totalScore, gamesPlayed, correctAnswers, totalQuestions, bestStreak, highScore, createdAt }
-```
-
-- `recordSession(player, session)` adds the game's score, correct answers and questions, and increments `gamesPlayed`. It keeps the max of `bestStreak` and of `highScore` (best single game).
-- `rankPlayers(players, 'total' | 'high')` sorts by Total Score (default) or High Score, then by name.
-- Names are 1–12 characters, uppercased with spaces collapsed (`cleanName`), and must be unique.
-- Accuracy is `correctAnswers / totalQuestions`, rounded.
-- All storage access is wrapped in try/catch. If storage is blocked, the game still works for that visit.
-
-#### How a score reaches the leaderboard
-
-1. Each answer goes through `reveal()` in `App.jsx`, which updates `stats` with the existing `applyResult()`.
-2. When `stats.attempted` reaches `SESSION_LENGTH`, `reveal()` calls `finishSession(stats)`.
-3. `finishSession()` runs `recordSession()` on the current Trainer. `updatePlayers()` puts the result in React state and writes it to `localStorage` in the same step. It also stores `lastResult` (the game's stats plus `newHigh`) for the results screen.
-4. The 10th reveal's button reads **SEE RESULTS**. `nextPokemon()` then switches to `results` instead of loading another round.
-
-#### How the leaderboard is built
-
-- App never stores a ranked list. It computes `ranked = rankPlayers(players, lbSort)` on every render, so the leaderboard always matches the saved data.
-- App's leaderboard state:
-
-  | State | Meaning |
-  | --- | --- |
-  | `lbSort` | `'total'` or `'high'` |
-  | `lbCursor` | Index of the highlighted row in `ranked` |
-  | `lbReturn` | The phase BACK returns to: `players` or `results` |
-
-- Opening the leaderboard puts the cursor on the current Trainer. Switching TOTAL ⇄ HIGH keeps the cursor on the same Trainer at their new position.
-- **Bottom screen** (`Leaderboard.jsx`):
-  - one row per Trainer: rank, name and the score for the active sort;
-  - ★ marks the current Trainer;
-  - ranks 1–3 are tinted gold, silver and bronze;
-  - the red arrow marks `lbCursor`.
-- **Top screen** (`PlayerStats.jsx`):
-  - the trainer card for the highlighted row;
-  - a **YOU** badge when that row is the current Trainer;
-  - a **NEW BEST!** badge on the results screen.
-
-#### Limitations
-
-- **Local only.** Scores aren't shared across browsers or devices, and clearing site data deletes every Trainer.
-- **Not tamper-proof.** Anyone can edit `wtp-players` in devtools.
-- **No way to delete or rename a Trainer** from the UI yet.
-- **Moving to an online leaderboard** (Supabase, Firebase, a small API) only touches `loadPlayers()`, `savePlayers()` and the `finishSession()` call. The screens only see the `players` array.
-
----
-
 ## 10. Generation config — `generationRanges.js`
 
 All Pokédex ranges are defined here and nowhere else:
@@ -507,7 +431,6 @@ Unsupported formats and failed downloads resolve `{ played: false, blocked: fals
 ### Unlocking and muting
 
 - Browsers keep Web Audio suspended until the user interacts with the page. `audio.unlock()` runs on the first pointer or key press anywhere, and again when START GAME is pressed.
-- The intro clip and cries all play through **one reused `<audio>` element** (`audio.voice`). `unlock()` plays a silent clip on it during the first click. Safari only allows `play()` from a timer on an element that was already played during a user gesture, and a fresh `new Audio()` each time would be blocked.
 - `audio.setMuted(true)` also stops the current cry. Mute applies to both cries and sound effects. The ♪ button is disabled while muted.
 
 ---
@@ -565,15 +488,7 @@ A 2×2 grid. The accent colours by position are yellow, lavender, pink-grey and 
 ### `TypeAnswer`
 **Props:** `roundId`, `attemptsLeft`, `wrongGuesses`, `hint`, `locked`, `onGuess(text)`
 
-It keeps its own `text` and `notice` state, which reset whenever `roundId` changes, and renders a `DSKeyboard`. After a wrong guess the field flashes red, clears, and shows the hint (first letter + blanks) greyed in the slots, with "Not quite! 1 try left."
-
-### `DSKeyboard`
-**Props:** `value`, `onChange`, `onSubmit`, `maxLength`, `ghost`, `status`, `statusBad`, `flashKey`, `disabled`
-
-The Diamond & Pearl name-entry screen: a slotted field with BACK and OK on its right, a status line, then keys `a–j`, `k–t`, `u–z` + SPACE, `0–9`. There is no HTML input. A capture-phase `keydown` listener on `window` also accepts the physical keyboard (letters, digits, space, Backspace, Enter) and stops those keys, so App's shortcuts (`M`, `C`, Enter→A) don't fire while typing. `Esc` is not handled, so it still means B. Changing `flashKey` flashes the field red.
-
-### `PlayerSelect`, `AddPlayer`, `Leaderboard`, `ResultsScreen`, `PlayerStats`
-Full-screen bottom menus built from the same parts as `StartMenu` (`menu__header`, `bar-btn--start` for the main action, `chip-btn` for secondary ones). Lists use `dp-list__row` with the red arrow cursor. `PlayerStats` is the top-screen trainer card (Total Score, High Score, Games Played, Correct, Accuracy, Best Streak).
+It keeps its own `text` and `notice` state, which reset whenever `roundId` changes, and it autofocuses the input. After a wrong guess it selects the text so the player can type straight over it. Enter submits. Autocorrect, autocapitalise and spellcheck are off so mobile keyboards don't change the answer.
 
 ### `RevealScreen`
 **Props:** `pokemon`, `outcome`, `points`, `onNext`
@@ -591,13 +506,11 @@ All input ends up in one function, `handleButton(name)` in `App.jsx`, so the on-
 
 ### What each button does in each phase
 
-Trainer screens: on `players`, A/START = PLAY GAME and ↑↓ change Trainer. On `leaderboard`, ↑↓ move the cursor, ←→ toggle TOTAL/HIGH and B goes back. On `addPlayer`, B cancels. On `results`, A/START = PLAY AGAIN and B = main menu. On `menu`, B = change user.
-
 | Button | menu | guessing (choice) | guessing (type) | revealed | error |
 | --- | --- | --- | --- | --- | --- |
-| A | Start game | Pick the cursor answer | — | Next Pokémon / See results | Retry |
-| START | Start game | — | — | Next Pokémon / See results | Retry |
-| B / POWER | Change user | Menu | Menu | Menu | Menu |
+| A | Start game | Pick the cursor answer | — | Next Pokémon | Retry |
+| START | Start game | — | — | Next Pokémon | Retry |
+| B / POWER | — | Menu | Menu | Menu | Menu |
 | X / Y | — | — | — | Replay cry | — |
 | SELECT | Mute toggle | Mute toggle | Mute toggle | Mute toggle | Mute toggle |
 | ← → | Previous/next generation | Move cursor across | — | — | — |
@@ -610,8 +523,8 @@ The cursor moves with XOR on the 2×2 grid: left/right does `cursor ^ 1` and up/
 The keyboard listener is registered once and calls the latest `handleButton` through a ref, which avoids stale closures. It follows these rules:
 
 - Held keys (`e.repeat`) are ignored.
-- `Escape` always works, even while typing.
-- While a `DSKeyboard` is on screen, it takes letters, digits, space, Backspace and Enter first (see `DSKeyboard`).
+- `Escape` always works, even inside the text field.
+- While the text field has focus, every other key is left to the field.
 - `Enter` is ignored when a button has focus, because the browser already activates that button.
 - `M` toggles mute and `C` replays the cry.
 
@@ -754,12 +667,6 @@ All of these go through `later()`, so returning to the menu or loading a new rou
 | Turn off the cry on reveal | Remove the `later(() => playCry(pokemon), 750)` line in `reveal()` |
 | Replace the "Who's that Pokémon?" clip | Swap `public/sounds/whos-that-pokemon.mp3` or change `INTRO_FILE` in `audioManager.js` |
 | Change the default menu choices | Initial `settings` state in `App.jsx` |
-| Change how many Pokémon are in a game | `SESSION_LENGTH` in `gameLogic.js` |
-| Change the favicon | Replace `favicon.png`, then regenerate the sizes: `sips -z 32 32 favicon.png --out public/favicon-32.png` (same for 192 and 180 → `apple-touch-icon.png`). Links are in `index.html` |
-| Wipe all Trainers | In the browser console: `localStorage.removeItem('wtp-players')` |
-| Change leaderboard sort keys | `rankPlayers()` in `playerStorage.js` and `SORTS` in `Leaderboard.jsx` |
-| Add or edit a DS colour | Add an entry to `DS_COLORS` in `ColorPicker.jsx` and a matching `.ds[data-color='…']` block of `--ds-*` variables in `ds.css`. The default (Midnight Blue) is in `:root` in `base.css` |
-| Change the stylus pointer | The `cursor: url(...)` SVG on `.ds, .ds *` in `ds.css` (hotspot `2 2` is the tip) |
 | Reduce repeats more or less | `RECENT_MEMORY` in `gameLogic.js` |
 | Change answer colours or order | `ACCENTS` in `MultipleChoice.jsx`; colours in `bottom-screen.css` |
 | Recolour the DS (e.g. pink) | The `--ds-*` tokens in `base.css`; a few gradients in `ds.css` use literal blues (`#67c9e0`, `#8ad8eb`…) that also need updating |
@@ -774,7 +681,7 @@ All of these go through `later()`, so returning to the menu or loading a new rou
 - **Cries in Safari.** PokéAPI serves cries as `.ogg`, which older Safari versions can't play. The game skips the cry silently in that case and the round is unaffected.
 - **Generation comes from ID ranges,** not from the API's species data. It is correct for the default form of every species up to 1025.
 - **Display names are formatted from slugs,** not taken from the API's localised names. The special-case table covers the known exceptions, but a future species with unusual punctuation may need an entry.
-- **Trainer stats are saved locally only,** in `localStorage`. They aren't shared between devices, and a game left before the 10th Pokémon isn't saved. See §9 "Games, Trainers and the leaderboard".
+- **Stats are not saved.** Score and streak last until the page reloads. `bestStreak` is tracked but not shown anywhere yet.
 - **The prefetched round is thrown away** if the generation changes before it is used. That costs one wasted request, with no visible effect.
 - **Distractors are random** within the generation, so some rounds are easy (very different names). They aren't matched by type or name length.
 - **The reveal hands over to the result panel** rather than highlighting the correct answer button in the grid.
@@ -791,8 +698,6 @@ All of these go through `later()`, so returning to the menu or loading a new rou
 | No cry plays and the ♪ button flashes | The browser blocked autoplay. Tap ♪ once; later cries usually play normally. |
 | No cry and ♪ doesn't flash | The Pokémon has no cry, the format isn't supported (see Safari above), sound is muted, or the system volume is off. |
 | Sound effects are silent but cries work | Web Audio hasn't been unlocked yet. Click anywhere on the page once. |
-| The tab still shows the old ❓ icon | Browsers cache favicons. Hard-refresh (Cmd+Shift+R); Safari may need a restart. |
-| Leaderboard is empty / Trainers vanished | Different browser or profile, private window, or site data was cleared. Trainers live in that browser's `localStorage` only. |
 | Text appears in a plain monospace font | Google Fonts didn't load (offline or blocked). The game still works. |
 | The DS looks tiny | The window is very short. Scaling fits height first; enlarge the window or zoom out. |
 | Enter does nothing in type mode | The text field isn't focused. Click into it; Enter inside the field submits. |
@@ -834,10 +739,10 @@ Live artwork and cries from the real PokéAPI should be checked on first run.
 
 ## 21. Ideas for future work
 
-- An online leaderboard shared between devices (see the limitations in §9).
-- Delete / rename a Trainer from the Trainer screen.
+- Save stats and best streak to `localStorage` and show the best streak on the title screen.
 - A difficulty setting: distractors of the same type or similar name length, or a cry-only mode with no silhouette.
-- Timed rounds.
+- Timed rounds, or a fixed 10-round game with a results screen.
 - Highlight the correct answer in the grid during the reveal.
 - Use the API's localised species names for other languages.
 - Real D&P-style sound effects in `public/sounds/`.
+- A light/dark DS colour picker (Lite colours: Polar White, Onyx, Pink).

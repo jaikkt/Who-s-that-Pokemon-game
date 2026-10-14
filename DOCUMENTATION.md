@@ -746,3 +746,4 @@ Live artwork and cries from the real PokéAPI should be checked on first run.
 - Use the API's localised species names for other languages.
 - Real D&P-style sound effects in `public/sounds/`.
 - A light/dark DS colour picker (Lite colours: Polar White, Onyx, Pink).
+- Database addition to show product sense
